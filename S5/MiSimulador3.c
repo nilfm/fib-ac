@@ -41,10 +41,8 @@ void reference (unsigned int address)
 	tag = bloque_m/128;
 	miss = (!valid[linea_mc] || tags[linea_mc] != tag);
 	replacement = valid[linea_mc] && miss;
-	if (miss) {
-		if (replacement) tag_out = tags[linea_mc];
-		tags[linea_mc] = tag;
-	}
+	tag_out = tags[linea_mc];
+	tags[linea_mc] = tag;
 	valid[linea_mc] = 1;
 
 	/* La funcio test_and_print escriu el resultat de la teva simulacio

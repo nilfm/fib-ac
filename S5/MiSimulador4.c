@@ -43,22 +43,12 @@ void reference (unsigned int address)
 	conj_mc = bloque_m%64;
 	tag = bloque_m/64;
 	
-	miss = 1;
-	for (int i = 0; i < 2 && miss; i++) {
-		if (valid[conj_mc][i] && tags[conj_mc][i] == tag) {
-			miss = 0;
-			via_mc = i;
-			lru[conj_mc] = 1 - i;
-		}
-	}
-	
-	if (miss) via_mc = lru[conj_mc];
+	miss = !((valid[conj_mc][0] && tags[conj_mc][0] == tag) || (valid[conj_mc][1] && tags[conj_mc][1] == tag));
+	via_mc = (miss && lru[conj_mc]) || (!miss && (valid[conj_mc][1] && tags[conj_mc][1] == tag));
 	replacement = miss && valid[conj_mc][via_mc];
-	if (miss) {
-		if (replacement) tag_out = tags[conj_mc][via_mc];
-		tags[conj_mc][via_mc] = tag;
-		lru[conj_mc] = 1 - via_mc;
-	}
+	tag_out = tags[conj_mc][via_mc];
+	tags[conj_mc][via_mc] = tag;
+	lru[conj_mc] = 1 - via_mc;
 	valid[conj_mc][via_mc] = 1;
 
 	/* La funcio test_and_print escriu el resultat de la teva simulacio
