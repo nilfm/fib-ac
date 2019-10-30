@@ -4,8 +4,9 @@
  * per mantenir la informacio necesaria de la cache
  * */
 
-
-
+int tags[64][2];
+int lru[64];
+int valid[64][2];
 
 /* La rutina init_cache es cridada pel programa principal per
  * inicialitzar la cache.
@@ -15,9 +16,10 @@ void init_cache ()
 {
     totaltime=0.0;
 	/* Escriu aqui el teu codi */
-
-
-
+	for (int i = 0; i < 64; i++) {
+		lru[i] = 0;
+		valid[i][0] = valid[i][1] = 0;
+	}
 }
 
 /* La rutina reference es cridada per cada referencia a simular */ 
@@ -35,20 +37,30 @@ void reference (unsigned int address)
 	
 	t1=GetTime();
 	/* Escriu aqui el teu codi */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	
+	replacement = 0;
+	byte = address%32;
+	bloque_m = address/32;
+	conj_mc = bloque_m%64;
+	tag = bloque_m/64;
+	miss = 1;
+	for (int i = 0; i < 2 && miss; i++) {
+		if (valid[conj_mc][i] && tags[conj_mc][i] == tag) {
+			miss = 0;
+			via_mc = i;
+			lru[conj_mc] = 1 - i;
+		}
+	}
+	if (miss) {
+		via_mc = lru[conj_mc];
+		if (valid[conj_mc][via_mc]) {
+			replacement = 1;
+			tag_out = tags[conj_mc][via_mc];
+		}
+		tags[conj_mc][via_mc] = tag;
+		lru[conj_mc] = 1 - via_mc;
+	}
+	valid[conj_mc][via_mc] = 1;
 
 	/* La funcio test_and_print escriu el resultat de la teva simulacio
 	 * per pantalla (si s'escau) i comproba si hi ha algun error
@@ -56,7 +68,7 @@ void reference (unsigned int address)
 	 * */
 	t2=GetTime();
 	totaltime+=t2-t1;
-	test_and_print2 (address, byte, bloque_m, conj_mc, via_mc, tag,
+	test_and_print2(address, byte, bloque_m, conj_mc, via_mc, tag,
 			miss, replacement, tag_out);
 }
 
